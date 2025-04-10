@@ -36,7 +36,15 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	bool isBomb;
+	bool isBomb = false;
+	bool isFlag = false;
+	bool isSearched = false;
+	int32 PosX;
+	int32 PosY;
+	int32 bombNum;
+	TArray<AMineBasic*> AroundMines;
 	class AMineGenerator* Grid;
+	UFUNCTION(BlueprintCallable)
 	void Click(UPrimitiveComponent* ClickedComp, FKey ButtomnPressed);
+	void IncaseClick();
 };

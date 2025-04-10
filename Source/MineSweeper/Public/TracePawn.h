@@ -30,5 +30,6 @@ public:
 	FString before = "";
 	FString now = "";
 	void Trace(FVector Start,FVector End);
+	void Click_R();
 
 };

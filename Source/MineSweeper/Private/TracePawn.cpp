@@ -38,7 +38,7 @@ void ATracePawn::Tick(float DeltaTime)
 void ATracePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+	PlayerInputComponent->BindAction("Mouse_R", IE_Pressed, this, &ATracePawn::Click_R);
 }
 
 void ATracePawn::Trace(FVector Start, FVector End)
@@ -47,7 +47,7 @@ void ATracePawn::Trace(FVector Start, FVector End)
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility);
 	if (bHit)
     {
-		if (HitResult.GetActor())
+		if (IsValid(HitResult.GetActor()))
 		{
 			AMineBasic* HitActor = Cast<AMineBasic>(HitResult.GetActor());
 			if (IsValid(HitActor))
@@ -57,8 +57,7 @@ void ATracePawn::Trace(FVector Start, FVector End)
 				now = *HitResult.GetActor()->GetName();
 				if (now != before)
 				{
-					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Hit Actor: %s"), *HitResult.GetActor()->GetName()));
-
+					//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Hit Actor: %s"), *HitResult.GetActor()->GetName()));
 				}
 				before = now;
 			}
@@ -67,6 +66,23 @@ void ATracePawn::Trace(FVector Start, FVector End)
 	else
 	{
 		FocuseCube = nullptr;
+	}
+}
+
+void ATracePawn::Click_R()
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("123")));
+    if (IsValid(FocuseCube)&&(!FocuseCube->isFlag)&&(FocuseCube->cubeMesh->IsVisible()))
+    {
+		FocuseCube->numText->SetVisibility(false);
+		FocuseCube->flagMesh->SetVisibility(true);
+		FocuseCube->isFlag = true;
+    }
+	else if(IsValid(FocuseCube) && (FocuseCube->isFlag) && (FocuseCube->cubeMesh->IsVisible()))
+	{
+		FocuseCube->numText->SetVisibility(true);
+		FocuseCube->flagMesh->SetVisibility(false);
+		FocuseCube->isFlag = false;
 	}
 }
 

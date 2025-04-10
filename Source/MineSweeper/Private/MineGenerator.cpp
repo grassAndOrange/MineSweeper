@@ -1,12 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "MineGenerator.h"
 #include "Components/ActorComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "Math/RandomStream.h"
 #include "MineBasic.h"
-#include "MineGenerator.h"
 #include <Components/TextRenderComponent.h>
+
+
 // Sets default values
 AMineGenerator::AMineGenerator()
 {
@@ -20,12 +22,7 @@ void AMineGenerator::BeginPlay()
 {
 	Super::BeginPlay();
 	GenerateMine();
-	GenerateUniqueRandomNumbers(0, GridWidNum * GridLenNum - 1, BombNum, bombIndex);
-	for (auto num : bombIndex)
-	{
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::FromInt(num));
-	}
-	GenerateBomb(bombIndex);
+	//FirstClick(GridLenNum / 2, GridWidNum / 2);
 }
 
 // Called every frame
@@ -47,6 +44,8 @@ void AMineGenerator::GenerateMine()
 			for (int j = 0; j < GridWidNum; j++)
 			{
 				AMineBasic* mineCube = GetWorld()->SpawnActor<AMineBasic>(MineClass, GetActorLocation() + FVector((i - (GridLenNum / 2)) * MineGap, (j - (GridWidNum / 2)) * MineGap, 0), GetActorRotation());
+				mineCube->PosX = i;
+				mineCube->PosY = j;
 				mineCube->Grid = this;
 				MineArray.Add(mineCube);
 				
@@ -63,15 +62,16 @@ void AMineGenerator::GenerateMine()
 
 }
 
-void AMineGenerator::GenerateUniqueRandomNumbers(int32 Min, int32 Max, int32 Count, TArray<int32>& OutUniqueRandomNumbers)
+void AMineGenerator::GenerateUniqueRandomNumbers(int32 Min, int32 Max, int32 PosX, int32 PosY, int32 Count, TArray<int32>& OutUniqueRandomNumbers)
 {
-	//返回包含不重复随机数的数组
+	//返回包含不重复随机数的数组，且不包含受点击网格周围至多八个王哥编号
 	FRandomStream RandomStream(FPlatformTime::Seconds());
 	TSet<int32> UniqueRandomNumbers;
 	while (UniqueRandomNumbers.Num() < Count)
 	{
 		int32 RandomNumber = RandomStream.RandRange(Min, Max);
-		UniqueRandomNumbers.Add(RandomNumber);
+		if(RandomNumber!=PosX*GridWidNum+PosY && RandomNumber!=PosX*GridWidNum+PosY+1 && RandomNumber!=PosX*GridWidNum+PosY-1 && RandomNumber!=PosX*GridWidNum+PosY+GridWidNum && RandomNumber!=PosX*GridWidNum+PosY-GridWidNum && RandomNumber!=PosX*GridWidNum+PosY+GridWidNum+1 && RandomNumber!=PosX*GridWidNum+PosY+GridWidNum-1 && RandomNumber!=PosX*GridWidNum+PosY-GridWidNum+1 && RandomNumber!=PosX*GridWidNum+PosY-GridWidNum-1)
+			UniqueRandomNumbers.Add(RandomNumber);
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, (FString::FromInt(RandomNumber)));
 	}
 	for (auto num : UniqueRandomNumbers)
@@ -94,7 +94,7 @@ void AMineGenerator::GenerateBomb(const TArray<int32>&  Index)
 			if (TextRenderComponents.Num() > 0)
 			{
 				UTextRenderComponent* TextRenderComponent = TextRenderComponents[0];
-				TextRenderComponent->SetText(FText::FromString("*"));
+				//TextRenderComponent->SetText(FText::FromString("*"));
 			}
 		}
 	}
@@ -116,5 +116,42 @@ void AMineGenerator::GameFail()
 
 void AMineGenerator::GameWin()
 {
+}
+
+void AMineGenerator::GetAroundMine(const int32& x, const int32& y, int32& num, TArray<AMineBasic*>& aroundMine)
+{
+	num = 0;
+	aroundMine.Empty();
+	int32 count = 0;
+	for (int i = x - 1; i <= x + 1; i++)
+    {
+        for (int j = y - 1; j <= y + 1; j++)
+        {
+
+            if (i >= 0 && i < GridLenNum && j >= 0 && j < GridWidNum && count != 4)
+            {
+				aroundMine.Add(MineArray[i * GridWidNum + j]);
+                if (MineArray[i * GridWidNum + j]->isBomb)
+                {
+                   num++;
+                }
+            }
+			count++;
+        }
+    }
+}
+
+void AMineGenerator::RevealAround()
+{
+	//int32 num;
+	
+}
+
+void AMineGenerator::FirstClick(int32 PosX, int32 PosY) //首次点击时生成地雷，确保第一次点击不会生成地雷
+{
+	GenerateUniqueRandomNumbers(0, GridWidNum * GridLenNum - 1, PosX, PosY, BombNum, bombIndex);
+	GenerateBomb(bombIndex);
+
+	isFirstClick = false;
 }
 
