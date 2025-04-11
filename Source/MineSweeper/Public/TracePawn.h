@@ -6,7 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "MineBasic.h"
 #include "TracePawn.generated.h"
-
+class UUI_Widget;
 UCLASS()
 class MINESWEEPER_API ATracePawn : public APawn
 {
@@ -31,5 +31,11 @@ public:
 	FString now = "";
 	void Trace(FVector Start,FVector End);
 	void Click_R();
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<UUserWidget> UIWidgetClass;
+private:
 
+
+	UPROPERTY()
+	UUserWidget* UIWidgetInstance;
 };

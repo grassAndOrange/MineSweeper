@@ -2,6 +2,7 @@
 
 
 #include "TracePawn.h"
+#include "UI_Widget.h"
 
 // Sets default values
 ATracePawn::ATracePawn()
@@ -9,6 +10,16 @@ ATracePawn::ATracePawn()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	//static ConstructorHelpers::FClassFinder<UUserWidget> WidgetBPClass(TEXT("/Game/BluePrints/BP_UI.BP_UI_C"));
+	//if (WidgetBPClass.Succeeded())
+	//{
+	//	UIWidgetClass = WidgetBPClass.Class;
+	//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, (FString::FromInt(222)));
+	//}
+	//else
+	//{
+	//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, (FString::FromInt(111)));
+	//}
 }
 
 // Called when the game starts or when spawned
@@ -16,6 +27,15 @@ void ATracePawn::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	//if (UIWidgetClass)
+	//{
+	//	UIWidgetInstance = CreateWidget<UUserWidget>(this, UIWidgetClass);
+	//	if (UIWidgetInstance)
+	//	{
+	//		// 显示UI
+	//		UIWidgetInstance->AddToViewport();
+	//	}
+	//}
 }
 
 // Called every frame
